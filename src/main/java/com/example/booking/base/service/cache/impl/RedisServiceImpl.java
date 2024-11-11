@@ -17,14 +17,14 @@ import lombok.RequiredArgsConstructor;
 public class RedisServiceImpl implements RedisService {
 
     private static final TimeUnit TIME_UNIT_CONFIG = TimeUnit.SECONDS;
-
+    public static final Long DEFAULT_TIME_EXPIRE = 86400L; // 1 day
     private final RedisTemplate<String, Object> objectRedisTemplate;
     private final RedisTemplate<String, String> stringRedisTemplate;
 
     @Override
     public void set(String key, String value) {
         try {
-            stringRedisTemplate.opsForValue().set(key, value);
+            stringRedisTemplate.opsForValue().set(key, value, DEFAULT_TIME_EXPIRE, TIME_UNIT_CONFIG);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -33,7 +33,7 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public Boolean setIfAbsent(String key, String value) {
         try {
-            return stringRedisTemplate.opsForValue().setIfAbsent(key, value);
+            return stringRedisTemplate.opsForValue().setIfAbsent(key, value, DEFAULT_TIME_EXPIRE, TIME_UNIT_CONFIG);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -54,6 +54,7 @@ public class RedisServiceImpl implements RedisService {
     public void set(String key, String hashKey, Object value) {
         try {
             objectRedisTemplate.boundHashOps(key).put(hashKey, value);
+            objectRedisTemplate.expire(key, DEFAULT_TIME_EXPIRE, TIME_UNIT_CONFIG);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -71,7 +72,9 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public Boolean setIfAbsent(String key, String hashKey, Object value) {
         try {
-            return objectRedisTemplate.boundHashOps(key).putIfAbsent(hashKey, value);
+            Boolean putIfAbsent = objectRedisTemplate.boundHashOps(key).putIfAbsent(hashKey, value);
+            objectRedisTemplate.expire(key, DEFAULT_TIME_EXPIRE, TIME_UNIT_CONFIG);
+            return putIfAbsent;
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -183,4 +186,10 @@ public class RedisServiceImpl implements RedisService {
     public Long increment(String key) {
         return stringRedisTemplate.boundValueOps(key).increment(1);
     }
+
+    @Override
+    public Long increment(String key, String hashKey) {
+        return objectRedisTemplate.opsForHash().increment(key, hashKey, 1);
+    }
+
 }

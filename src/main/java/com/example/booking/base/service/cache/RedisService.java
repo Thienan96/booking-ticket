@@ -33,7 +33,8 @@ public interface RedisService {
 
     Long decrement(String key);
 
-    public Long increment(String key);
+    Long increment(String key);
 
+    Long increment(String key, String hashKey);
 
 }

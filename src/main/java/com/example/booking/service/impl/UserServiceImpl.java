@@ -7,7 +7,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.booking.base.constant.RedisKey;
 import com.example.booking.base.constant.ReturnCodeEnum;
+import com.example.booking.base.service.cache.RedisService;
 import com.example.booking.dto.base.ActionResult;
 import com.example.booking.dto.indto.BookingTicketInDto;
 import com.example.booking.entity.TicketEntity;
@@ -28,38 +30,66 @@ public class UserServiceImpl implements UserService {
     private final TicketUserRepos ticketUserRepos;
     private final UserRepos userRepos;
     private final TicketRepos ticketRepos;
+    private final RedisService redisService;
 
     /**
      * 1. @Lock entity
      * 2. @Transactional
      */
-    @Transactional(readOnly = false)
+    // @Transactional(readOnly = false)
     @Override
     public ActionResult booking(BookingTicketInDto input) {
         Long userId = 1L;
         ActionResult result = new ActionResult();
         try {
-            UserEntity user = userRepos.findById(userId).get();
-            Optional<TicketEntity> opTicket = ticketRepos
-                    .findById(input.getTicketId());
-            if(opTicket.isPresent()) {
-                TicketEntity ticket = opTicket.get();
-                if(ticket.getSoldAmount() < ticket.getAmount()) {
-                    Integer soldAmount = ticket.getSoldAmount() + 1;
-                    TicketUserEntity ticketUser = new TicketUserEntity();
-                    ticketUser.setTicket(ticket);
-                    ticketUser.setUser(user);
-                    ticketUser.setTicketCode(ticket.getCode() + "-" + soldAmount.toString());
-                    ticketUserRepos.save(ticketUser);
-                    ticket.setSoldAmount(soldAmount);
-                    ticketRepos.save(ticket);
-                    result.setReturnCode(ReturnCodeEnum.OK);
+            Integer amount = null;
+            Integer soldAmount = null;
+            // UserEntity user = userRepos.findById(userId).get();
+            Boolean ticketOnSell = redisService.setIfAbsent(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "id", input.getTicketId());
+            if(ticketOnSell) {
+                Optional<TicketEntity> opTicket = ticketRepos
+                .findById(input.getTicketId());
+                if(opTicket.isPresent()) {
+                    TicketEntity ticket = opTicket.get();
+                    amount = ticket.getAmount();
+                    soldAmount = ticket.getSoldAmount();
+                    redisService.set(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "amount", amount);
+                    redisService.set(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "soldAmount", soldAmount); 
                 } else {
-                    result.setReturnCode(ReturnCodeEnum.TICKET_SOLD_OUT);
+                    redisService.set(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "id", null);
+                    result.setReturnCode(ReturnCodeEnum.TICKET_NOT_EXIST);
                 }
             } else {
-                result.setReturnCode(ReturnCodeEnum.TICKET_CATEGORY_NOT_EXIST);
+                Long ticketId = Long.valueOf(redisService.get(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "id").toString());
+                if(ticketId == null) {
+                    result.setReturnCode(ReturnCodeEnum.TICKET_NOT_EXIST);
+                } else {
+                    Object obAmount = Optional.ofNullable(redisService.get(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "amount")).orElse(null);
+                    Object obSoldAmount = Optional.ofNullable(redisService.get(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "soldAmount")).orElse(null);;
+                    if(obAmount != null && obSoldAmount != null) {
+                        amount = (Integer) obAmount;
+                        soldAmount = (Integer) obSoldAmount;
+                    } else {
+                        Thread.sleep(100);
+                        amount = (Integer) redisService.get(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "amount");
+                        soldAmount = (Integer) redisService.get(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "soldAmount");
+                    }
+                }
             }
+            if(soldAmount < amount) {
+                redisService.increment(RedisKey.TICKET_ON_SELL + ":" + input.getTicketId(), "soldAmount");
+                result.setReturnCode(ReturnCodeEnum.OK);
+            }
+
+                            //     Integer soldAmount = ticket.getSoldAmount() + 1;
+                //     TicketUserEntity ticketUser = new TicketUserEntity();
+                //     ticketUser.setTicket(ticket);
+                //     ticketUser.setUser(user);
+                //     ticketUser.setTicketCode(ticket.getCode() + "-" + soldAmount.toString());
+                //     ticketUserRepos.save(ticketUser);
+                //     ticket.setSoldAmount(soldAmount);
+                //     ticketRepos.save(ticket);
+                //     result.setReturnCode(ReturnCodeEnum.OK);
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println(e);

@@ -33,12 +33,29 @@ public class RedisConfig {
   }
 
   @Bean
+  public RedisCacheConfiguration cacheConfiguration() {
+    RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+    .entryTtl(Duration.ofSeconds(ttl));
+    return cacheConfig;
+  }
+
+  @Bean
+  public RedisCacheManager cacheManager() {
+    RedisCacheManager rcm = RedisCacheManager.builder(redisConnectionFactory())
+        .cacheDefaults(cacheConfiguration())
+        .transactionAware()
+        .build();
+    return rcm;
+  }
+
+  @Bean
   RedisTemplate<String, Object> objectRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 
     RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
     template.setConnectionFactory(redisConnectionFactory);
     template.setKeySerializer(new StringRedisSerializer());
-    template.setValueSerializer(new StringRedisSerializer());
+    template.setHashKeySerializer(new StringRedisSerializer());
+    template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
     template.setEnableTransactionSupport(true);
     template.afterPropertiesSet();
     
@@ -51,27 +68,11 @@ public class RedisConfig {
 
     StringRedisTemplate template = new StringRedisTemplate();
     template.setConnectionFactory(redisConnectionFactory);
-    template.setHashKeySerializer(new StringRedisSerializer());
-    template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(new StringRedisSerializer());
     template.setEnableTransactionSupport(true);
     template.afterPropertiesSet();
     
     return template;
-  }
-
-  @Bean
-  public RedisCacheConfiguration cacheConfiguration() {
-    RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-        .entryTtl(Duration.ofMillis(ttl));
-    return cacheConfig;
-  }
-
-  @Bean
-  public RedisCacheManager cacheManager() {
-    RedisCacheManager rcm = RedisCacheManager.builder(redisConnectionFactory())
-        .cacheDefaults(cacheConfiguration())
-        .transactionAware()
-        .build();
-    return rcm;
   }
 }

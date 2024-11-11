@@ -9,7 +9,7 @@ public enum ReturnCodeEnum {
 
     OK("OK", 200, 20001, "OK"),
     SOMETHING_WRONG("SOMETHING_WRONG", 400, 20244, "Some thing wrong"),
-    TICKET_CATEGORY_NOT_EXIST("TICKET_CATEGORY_NOT_EXIST", 400, 20244, "Ticket category not exist"),
+    TICKET_NOT_EXIST("TICKET_NOT_EXIST", 400, 20244, "Ticket not exist"),
     TICKET_SOLD_OUT("TICKET_SOLD_OUT", 400, 20244, "Ticket sold out")
     ;
 

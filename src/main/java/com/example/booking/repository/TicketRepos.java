@@ -14,6 +14,6 @@ import java.util.List;
 
 public interface TicketRepos extends JpaRepository<TicketEntity, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    // @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<TicketEntity> findById(Long id);
 }
