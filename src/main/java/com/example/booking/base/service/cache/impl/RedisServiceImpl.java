@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class RedisServiceImpl implements RedisService {
 
     private static final TimeUnit TIME_UNIT_CONFIG = TimeUnit.SECONDS;
+    public static final Long USER_LOGIN_EXPIRE = 86400L; // 1 day
     public static final Long DEFAULT_TIME_EXPIRE = 86400L; // 1 day
     private final RedisTemplate<String, Object> objectRedisTemplate;
     private final RedisTemplate<String, String> stringRedisTemplate;
@@ -190,6 +191,11 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public Long increment(String key, String hashKey) {
         return objectRedisTemplate.opsForHash().increment(key, hashKey, 1);
+    }
+
+    @Override
+    public Long getTokenExpireTime() {
+        return USER_LOGIN_EXPIRE;
     }
 
 }

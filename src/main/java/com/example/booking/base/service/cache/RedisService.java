@@ -37,4 +37,7 @@ public interface RedisService {
 
     Long increment(String key, String hashKey);
 
+    Long getTokenExpireTime();
+
+
 }

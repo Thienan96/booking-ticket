@@ -6,5 +6,4 @@ import com.example.booking.entity.UserEntity;
 
 
 public interface UserRepos extends JpaRepository<UserEntity, Long> {
-
 }
