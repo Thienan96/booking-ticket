@@ -13,6 +13,7 @@ public enum ReturnCodeEnum {
     TICKET_SOLD_OUT("TICKET_SOLD_OUT", 400, 20244, "Ticket sold out"),
     USER_DISABLED("USER_DISABLED", 401, 20244, "User disabled"),
     INVALID_CREDENTIALS("INVALID_CREDENTIALS", 401, 20244, "UserName or password is incorrect"),
+    TOKEN_INVALID("TOKEN_INVALID", 401, 20244, "Token invalid"),
 
     ;
 

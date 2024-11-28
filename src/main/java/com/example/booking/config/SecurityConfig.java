@@ -34,6 +34,7 @@ public class SecurityConfig {
 
     private final JwtUserDetailsService jwtUserDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -41,22 +42,16 @@ public class SecurityConfig {
                         .requestMatchers(CONST_API.API_USER_PREFIX + "/" + CONST_API.PUBLIC,
                                 CONST_API.API_USER_PREFIX + "/" + CONST_API.CREATE_USER,
                                 CONST_API.API_USER_PREFIX + "/" + CONST_API.TEST_USER,
-                                "/logout",
                                 CONST_API.API_USER_PREFIX + "/" + CONST_API.LOGIN)
                         .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         CONST_API.API_USER_PREFIX + "/" + CONST_API.CREATE_USER,
-                        "/logout",
                         CONST_API.API_USER_PREFIX + "/" + CONST_API.LOGIN))
-                // .logout(logout -> logout.logoutUrl("/logout").permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) // filter before
-                // auth/logout
-                .logout((logout) -> logout.logoutUrl("/logout"))
                 .sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(daoAuthenticationProvider());
         return http.build();
     }

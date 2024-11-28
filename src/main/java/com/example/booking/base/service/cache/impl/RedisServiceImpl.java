@@ -62,7 +62,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void set(String key, String value, long expireTime) {
+    public void set(String key, String value, Long expireTime) {
         try {
             stringRedisTemplate.opsForValue().set(key, value, expireTime, TIME_UNIT_CONFIG);
         } catch (Exception e) {
@@ -107,7 +107,9 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public String get(String key) {
         try {
-            return stringRedisTemplate.opsForValue().get(key);
+            // return stringRedisTemplate.opsForValue().get(key);
+            return stringRedisTemplate.boundValueOps(key).get();
+
         } catch (Exception e) {
             System.out.println(e);
         }

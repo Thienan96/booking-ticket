@@ -14,6 +14,7 @@ import com.example.booking.dto.base.ActionResult;
 import com.example.booking.dto.base.ResponseBuilder;
 import com.example.booking.dto.indto.BookingTicketInDto;
 import com.example.booking.dto.indto.CreateUserDto;
+import com.example.booking.dto.indto.KeyPairInInDto;
 import com.example.booking.dto.indto.UserLoginInDto;
 import com.example.booking.service.UserService;
 
@@ -61,6 +62,11 @@ public class UserController {
 	@PostMapping(value = CONST_API.LOGIN)
 	public ResponseEntity login(@RequestBody UserLoginInDto input) {
 		ActionResult result = userService.login(input);
+		return responseBuilder.build(result);
+	}
+	@PostMapping(value = CONST_API.REFRESH_TOKEN)
+	public ResponseEntity login(@RequestBody KeyPairInInDto input) {
+		ActionResult result = userService.refreshToken(input);
 		return responseBuilder.build(result);
 	}
 

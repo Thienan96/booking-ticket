@@ -5,6 +5,7 @@ import java.util.List;
 import com.example.booking.dto.base.ActionResult;
 import com.example.booking.dto.indto.BookingTicketInDto;
 import com.example.booking.dto.indto.CreateUserDto;
+import com.example.booking.dto.indto.KeyPairInInDto;
 import com.example.booking.dto.indto.TicketInDto;
 import com.example.booking.dto.indto.UserLoginInDto;
 
@@ -17,6 +18,8 @@ public interface UserService {
 	ActionResult createUser (CreateUserDto input);
 
 	ActionResult login (UserLoginInDto input);
+
+	ActionResult refreshToken (KeyPairInInDto input);
 
 	ActionResult testUser ();
 

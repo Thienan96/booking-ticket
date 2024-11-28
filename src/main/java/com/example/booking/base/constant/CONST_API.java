@@ -15,6 +15,7 @@ public class CONST_API {
     public final static String BOOKING_TICKET = "booking"; 
     public final static String CREATE_USER = "create-user"; 
     public final static String LOGIN = "login"; 
+    public final static String REFRESH_TOKEN = "refresh-token"; 
     public final static String TEST_USER = "test-user"; 
 
 

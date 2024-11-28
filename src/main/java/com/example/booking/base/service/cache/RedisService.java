@@ -6,7 +6,7 @@ public interface RedisService {
     // save string 
     void set(String key, String value);
 
-    void set(String key, String value, long expireTime);
+    void set(String key, String value, Long expireTime);
 
     Boolean setIfAbsent(String key, String value);
 

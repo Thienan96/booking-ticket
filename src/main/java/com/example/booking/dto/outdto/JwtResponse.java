@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class JwtResponse implements Serializable {
-    private final String access_token;
+    private final String accessToken;
+    private final String refreshToken;
     private final Long time_to_live_seconds;
 }

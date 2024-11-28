@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.io.Serializable;
@@ -54,4 +55,7 @@ public class ClientEntity extends AuditMetadata implements Serializable {
         joinColumns = @JoinColumn(name = "client_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Collection<RoleEntity> roles;
+
+    // @OneToOne(mappedBy = "client")
+    // private KeyEntity key;
 }
